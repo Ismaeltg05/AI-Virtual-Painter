@@ -45,9 +45,8 @@ Implementación de un pintor virtual en tiempo real mediante seguimiento de mano
 ### Dependencias
 
 ```bash
-pip install opencv-python
-pip install numpy
-pip install mediapipe
+pip install opencv-python numpy
+pip install mediapipe==0.10.13 protobuf==5.26.1
 ```
 
 ### Estructura del proyecto
