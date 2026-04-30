@@ -16,12 +16,14 @@ Implementación de un pintor virtual en tiempo real mediante seguimiento de mano
 
 ## ✋ Controles por gestos
 
-| Gesto | Acción |
-|---|---|
-| ☝️ Solo índice arriba | **Modo dibujo** — dibuja con el dedo índice |
-| ✌️ Índice + medio arriba | **Modo selección** — elige color o borrador en la barra superior |
-| 🤙 Índice + meñique arriba | **Modo espera** — levanta el lápiz para dibujar trazos separados |
-| ✊ Mano cerrada | **Borrar lienzo** — limpia toda la pantalla |
+| Gesto | Dedos | Acción |
+|---|---|---|
+| ☝️ Solo índice arriba | `[-, 1, 0, -, -]` | **Modo dibujo** — dibuja con el dedo índice |
+| ✌️ Índice + medio arriba | `[-, 1, 1, -, -]` | **Modo selección** — elige color o borrador en la barra superior |
+| 🤙 Índice + meñique arriba | `[-, 1, 0, 0, 1]` | **Ajustar grosor** — acerca/aleja el pulgar del índice para cambiar el tamaño del trazo |
+| ✊ Puño cerrado | `[-, 0, 0, 0, 0]` | **Borrar lienzo** — limpia toda la pantalla |
+
+> El grosor actual siempre se muestra en la esquina inferior izquierda de la pantalla (rango: 5 – 80 px).
 
 ---
 
@@ -43,6 +45,7 @@ Implementación de un pintor virtual en tiempo real mediante seguimiento de mano
 - Webcam funcional
 
 ### Dependencias
+
 
 ```bash
 pip install opencv-python numpy
@@ -82,9 +85,10 @@ Pulsa **`Q`** para salir.
 El programa utiliza los 21 landmarks de la mano que detecta MediaPipe para inferir el estado de cada dedo (arriba/abajo) y determinar el gesto activo:
 
 1. **Detección de mano** — MediaPipe identifica y rastrea los puntos clave de la mano en cada frame.
-2. **Clasificación de gestos** — Se evalúa la posición relativa de las puntas de los dedos respecto a sus articulaciones.
-3. **Modo de dibujo** — El trazo se genera interpolando la posición actual con la anterior (`xp, yp`) sobre un lienzo (`imgCanvas`) separado del video.
-4. **Fusión de imagen** — El lienzo se combina con el frame de la cámara mediante operaciones bitwise de OpenCV, superponiendo el dibujo sobre el video en tiempo real.
+2. **Clasificación de gestos** — Se evalúa la posición relativa de las puntas de los dedos respecto a sus articulaciones. El orden de prioridad es: puño → grosor → selección → dibujo.
+3. **Ajuste de grosor** — Se calcula la distancia euclidiana entre la punta del pulgar y la del índice con `math.hypot`, y se mapea al rango de grosor con `np.interp`.
+4. **Modo de dibujo** — El trazo se genera interpolando la posición actual con la anterior (`xp, yp`) sobre un lienzo (`imgCanvas`) separado del video.
+5. **Fusión de imagen** — El lienzo se combina con el frame de la cámara mediante operaciones bitwise de OpenCV, superponiendo el dibujo sobre el video en tiempo real.
 
 ---
 
